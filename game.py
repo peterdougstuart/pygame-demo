@@ -6,7 +6,7 @@ import sys
 
 character = "man.png"
 flyer = "star.png"
-bg_color = (200, 200, 255)
+bg_color = (100, 100, 255)
 song = None #mp3 file
 
 
