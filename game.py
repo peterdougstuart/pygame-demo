@@ -42,18 +42,18 @@ class Player(pygame.sprite.Sprite):
     def update(self, pressed_keys):
         
         if pressed_keys[K_UP]:
-            self.rect.move_ip(0, -10)
+            self.rect.move_ip(0, -7.5)
 
         if pressed_keys[K_DOWN]:
-            self.rect.move_ip(0, 10)
+            self.rect.move_ip(0, 7.5)
 
 
         if pressed_keys[K_LEFT]:
-            self.rect.move_ip(-10, 0)
+            self.rect.move_ip(-7.5, 0)
 
 
         if pressed_keys[K_RIGHT]:
-            self.rect.move_ip(10, 0)
+            self.rect.move_ip(7.5, 0)
 
 
         # Keep player on the screen
