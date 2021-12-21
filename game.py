@@ -4,13 +4,6 @@ import random
 import sys
 
 
-character = "man.png"
-flyer = "star.png"
-bg_color = (0, 247, 255)
-song = None #mp3 file
-
-
-
 # Import pygame.locals for easier access to key coordinates
 # Updated to conform to flake8 and black standards
 from pygame.locals import (
@@ -24,9 +17,46 @@ from pygame.locals import (
     QUIT,
 )
 
+
+PLAYER = "man.png"
+FLYER = "star.png"
+ENEMY = "alien.png"
+
+bg_color = (0, 247, 255)
+
+SONG = "song.mp3" #mp3 file
+SOUND = None
+
 # Define constants for the screen width and height
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 600
+
+
+def play_sound(sound_file):
+    
+    #play sound once
+    if sound_file is not None:
+        soundObj = pygame.mixer.Sound(sound_file)
+        soundObj.play(1)
+
+
+class Song:
+
+    def __init__(self, mute=False):
+
+        self.mute = mute
+
+        # load song file
+        self.song = pygame.mixer.Sound(SONG)
+
+    def play(self):
+        if not self.mute:
+            self.song.play(-1)
+
+    def stop(self):
+        if not self.mute:
+            self.song.stop()
+
 
 # Define a player object by extending pygame.sprite.Sprite
 # The surface drawn on the screen is now an attribute of 'player'
@@ -34,7 +64,7 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.surf = pygame.image.load(character).convert()
+        self.surf = pygame.image.load(PLAYER).convert()
         self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.surf.get_rect()
 
@@ -72,7 +102,7 @@ class Player(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.surf = pygame.image.load("missile.png").convert()
+        self.surf = pygame.image.load(ENEMY).convert()
         self.surf.set_colorkey((255, 255, 255), RLEACCEL)
         self.rect = self.surf.get_rect(
             center=(
@@ -90,12 +120,12 @@ class Enemy(pygame.sprite.Sprite):
             self.kill()
 
 
-# Define the cloud object by extending pygame.sprite.Sprite
+# Define the flyer object by extending pygame.sprite.Sprite
 # Use an image for a better-looking sprite
-class Cloud(pygame.sprite.Sprite):
+class Flyer(pygame.sprite.Sprite):
     def __init__(self):
-        super(Cloud, self).__init__()
-        self.surf = pygame.image.load(flyer).convert()
+        super(Flyer, self).__init__()
+        self.surf = pygame.image.load(FLYER).convert()
         self.surf.set_colorkey((0, 0, 0), RLEACCEL)
         # The starting position is randomly generated
         self.rect = self.surf.get_rect(
@@ -145,12 +175,13 @@ all_sprites.add(player)
 # Update the display
 pygame.display.flip()
 
+#start in game song, pass mute=True if you want to surpress song
+song = Song()
+
 # Variable to keep the main loop running
 running = True
+song.play()
 
-if song is not None:
-    soundObj = pygame.mixer.Sound(song)
-    soundObj.play(-1)
 
 # Main loop
 while running:
@@ -170,14 +201,14 @@ while running:
         # Add a new enemy?
         elif event.type == ADDENEMY:
             # Create the new enemy and add it to sprite groups
-            #new_enemy = Enemy()
-            #enemies.add(new_enemy)
-            #all_sprites.add(new_enemy)
-            pass
+            new_enemy = Enemy()
+            enemies.add(new_enemy)
+            all_sprites.add(new_enemy)
+
         # Add a new cloud?
         elif event.type == ADDCLOUD:
             # Create the new cloud and add it to sprite groups
-            new_cloud = Cloud()
+            new_cloud = Flyer()
             clouds.add(new_cloud)
             all_sprites.add(new_cloud)
             
@@ -189,8 +220,17 @@ while running:
 
     # Check if any enemies have collided with the player
     if pygame.sprite.spritecollideany(player, enemies):
+        
         # If so, then remove the player and stop the loop
         player.kill()
+        
+        print("Game Over")
+        
+        song.stop()
+        play_sound("lose.mp3")
+
+        pygame.time.wait(5000)
+
         running = False
 
     # Update enemy position
@@ -209,3 +249,4 @@ while running:
  
     # Ensure program maintains a rate of 30 frames per second
     clock.tick(30)
+
