@@ -2,10 +2,14 @@
 import pygame
 import random
 import sys
+import os.path
 
 
 # Import pygame.locals for easier access to key coordinates
 # Updated to conform to flake8 and black standards
+
+# https://pygame.readthedocs.io/en/latest/1_intro/intro.html#import-pygame-locals
+
 from pygame.locals import (
     RLEACCEL,
     K_UP,
@@ -18,13 +22,16 @@ from pygame.locals import (
 )
 
 
-PLAYER = "man.png"
-FLYER = "star.png"
-ENEMY = "alien.png"
+# get the folder qwhich contains this file
+folder = os.path.abspath(os.path.dirname(__file__))
+
+PLAYER = os.path.join(folder, "man.png")
+FLYER = os.path.join(folder, "star.png")
+ENEMY = os.path.join(folder, "alien.png")
 
 bg_color = (0, 247, 255)
 
-SONG = "song.mp3" #mp3 file
+SONG = os.path.join(folder, "song.mp3")  # mp3 file
 SOUND = None
 
 # Define constants for the screen width and height
