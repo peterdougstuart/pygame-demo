@@ -25,11 +25,12 @@ from pygame.locals import (
 # get the folder qwhich contains this file
 folder = os.path.abspath(os.path.dirname(__file__))
 
-PLAYER = os.path.join(folder, "man.png")
+PLAYER = os.path.join(folder, "astronaut.png")
 FLYER = os.path.join(folder, "star.png")
 ENEMY = os.path.join(folder, "alien.png")
 
 bg_color = (0, 247, 255)
+#bg_color = (255, 255, 255)
 
 SONG = os.path.join(folder, "song.mp3")  # mp3 file
 SOUND = None
@@ -40,11 +41,14 @@ SCREEN_HEIGHT = 600
 
 
 def play_sound(sound_file):
-    
+
     #play sound once
     if sound_file is not None:
-        soundObj = pygame.mixer.Sound(sound_file)
-        soundObj.play(1)
+        try:
+            soundObj = pygame.mixer.Sound(sound_file)
+            soundObj.play(1)
+        except Exception as error:
+            print(f'Failed to play sound. Error message was: {error}')
 
 
 class Song:
@@ -54,14 +58,18 @@ class Song:
         self.mute = mute
 
         # load song file
-        self.song = pygame.mixer.Sound(SONG)
+        try:
+            self.song = pygame.mixer.Sound(SONG)
+        except Exception as error:
+            self.song = None
+            print(f'Failed to play song. Error message was: {error}')
 
     def play(self):
-        if not self.mute:
+        if not self.mute and self.song is not None:
             self.song.play(-1)
 
     def stop(self):
-        if not self.mute:
+        if not self.mute and self.song is not None:
             self.song.stop()
 
 
@@ -72,7 +80,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.surf = pygame.image.load(PLAYER).convert()
-        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
+        transparent_color = self.surf.get_at((0,0))
+        self.surf.set_colorkey(transparent_color, RLEACCEL)
         self.rect = self.surf.get_rect()
 
     # Move the sprite based on user keypresses
@@ -110,7 +119,8 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.surf = pygame.image.load(ENEMY).convert()
-        self.surf.set_colorkey((255, 255, 255), RLEACCEL)
+        transparent_color = self.surf.get_at((0, 0))
+        self.surf.set_colorkey(transparent_color, RLEACCEL)
         self.rect = self.surf.get_rect(
             center=(
                 random.randint(SCREEN_WIDTH + 20, SCREEN_WIDTH + 100),
@@ -133,7 +143,8 @@ class Flyer(pygame.sprite.Sprite):
     def __init__(self):
         super(Flyer, self).__init__()
         self.surf = pygame.image.load(FLYER).convert()
-        self.surf.set_colorkey((0, 0, 0), RLEACCEL)
+        transparent_color = self.surf.get_at((0,0))
+        self.surf.set_colorkey(transparent_color, RLEACCEL)
         # The starting position is randomly generated
         self.rect = self.surf.get_rect(
             center=(
